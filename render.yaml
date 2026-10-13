@@ -30,7 +30,7 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://pashusetu-backend.onrender.com/api/*
+        destination: https://grammithra1.onrender.com/api/*
       - type: rewrite
         source: /*
         destination: /index.html
