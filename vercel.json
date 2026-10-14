@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://grammithra1.onrender.com/api/$1"
+      "destination": "https://grammithra-2.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
