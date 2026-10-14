@@ -3,7 +3,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { FarmVisit } from '../types';
-import { LeafletMap } from '../components/LeafletMap';
 import {
   Calendar,
   Clock,
@@ -14,7 +13,8 @@ import {
   Phone,
   User,
   ArrowRight,
-  Navigation
+  Navigation,
+  ShieldCheck
 } from 'lucide-react';
 
 interface FarmVisitsPageProps {
@@ -27,7 +27,7 @@ export const FarmVisitsPage: React.FC<FarmVisitsPageProps> = ({ onNavigateToList
 
   const [visits, setVisits] = useState<FarmVisit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedVisitForMap, setSelectedVisitForMap] = useState<FarmVisit | null>(null);
+  const [selectedVisit, setSelectedVisit] = useState<FarmVisit | null>(null);
 
   useEffect(() => {
     fetchVisits();
@@ -38,9 +38,8 @@ export const FarmVisitsPage: React.FC<FarmVisitsPageProps> = ({ onNavigateToList
     try {
       const items = await api.getVisits();
       setVisits(items);
-      const acceptedWithCoords = items.find(v => v.status === 'accepted' && v.exact_latitude && v.exact_longitude);
-      if (acceptedWithCoords) {
-        setSelectedVisitForMap(acceptedWithCoords);
+      if (items.length > 0) {
+        setSelectedVisit(items[0]);
       }
     } catch (err) {
       console.warn(err);
@@ -58,139 +57,142 @@ export const FarmVisitsPage: React.FC<FarmVisitsPageProps> = ({ onNavigateToList
     }
   };
 
-  if (!user) {
-    return (
-      <div className="max-w-md mx-auto py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-slate-800">Please Login to View Farm Visits</h2>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white font-display">
-          {lang === 'ta' ? 'பண்ணை பார்வைகள் & நேரடி பரிசோதனை' : 'Farm Visit Appointments'}
-        </h1>
-        <p className="text-xs text-slate-400 mt-1">
-          {lang === 'ta'
-            ? 'வாங்குபவர் மற்றும் விற்பனையாளர் இடையேயான நேரடி சந்திப்பு மற்றும் கறவை பரிசோதனை அட்டவணை'
-            : 'Track inspection dates, morning/evening milking slots, and unlocked farm directions'}
-        </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-sage-200 shadow-sm">
+        <div>
+          <div className="section-badge mb-2">
+            <Calendar className="w-3.5 h-3.5 text-forest-800" />
+            <span>{lang === 'ta' ? 'நேரடி பண்ணை பார்வை' : 'Physical Milking Tests'}</span>
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-charcoal-800">
+            {lang === 'ta' ? 'நேரடி பண்ணை பார்வைகள்' : 'On-Farm Milking Visits'}
+          </h1>
+          <p className="text-xs text-charcoal-500 mt-1">
+            {lang === 'ta'
+              ? 'நேரில் சென்று பால் கறவை பார்த்து, கால்நடை உடல்நலனை சரிபார்த்து வாங்கும் வசதி'
+              : 'Schedule on-farm inspection appointments to personally observe live milking and veterinary health'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="px-3 py-1.5 rounded-xl bg-sage-100 text-forest-800 text-xs font-bold border border-sage-200">
+            {visits.length} {visits.length === 1 ? 'Appointment' : 'Appointments'}
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Visit Cards List (7 Cols) */}
+      {/* Main Grid: Visits List + Inspection Guide */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Visits List (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(n => <div key={n} className="h-40 rounded-2xl bg-sand-200 animate-pulse" />)}
+            <div className="space-y-4">
+              {[1, 2].map((n) => (
+                <div key={n} className="h-44 rounded-3xl bg-ivory-200 animate-pulse border border-sage-200" />
+              ))}
             </div>
           ) : visits.length === 0 ? (
-            <div className="bg-white p-12 text-center rounded-3xl border border-earth-200 space-y-3">
-              <Calendar className="w-12 h-12 text-slate-300 mx-auto" />
-              <h3 className="font-bold text-slate-900 text-base">No Farm Visits Scheduled</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            <div className="bg-white p-12 text-center rounded-3xl border border-sage-200 shadow-sm space-y-3">
+              <div className="text-4xl">📅</div>
+              <h3 className="font-display font-bold text-charcoal-800 text-base">
+                {lang === 'ta' ? 'பார்வை பதிவுகள் எதுவும் இல்லை' : 'No Scheduled Farm Visits'}
+              </h3>
+              <p className="text-xs text-charcoal-500 max-w-sm mx-auto">
                 {lang === 'ta'
-                  ? 'கால்நடை விபரப் பக்கத்திற்குச் சென்று "நேரடி பண்ணை பார்வை" பட்டனை அழுத்தி முன்பதிவு செய்யவும்.'
-                  : 'Browse livestock listings and request an on-farm milking inspection.'}
+                  ? 'கால்நடை விவரப் பக்கத்தில் "பண்ணை பார்வை கோரிக்கை" பொத்தானை அழுத்தி முன்பதிவு செய்யவும்.'
+                  : 'Open any livestock detail page and click "Request Farm Visit" to inspect live milking in person.'}
               </p>
             </div>
           ) : (
-            visits.map((visit) => {
-              const isSeller = visit.seller_id === user.id;
-              const isAccepted = visit.status === 'accepted';
-              const isDeclined = visit.status === 'declined';
-              const isPending = visit.status === 'requested';
+            visits.map((v) => {
+              const isSeller = user?.role === 'seller' || user?.id === v.seller_id;
+              const isAccepted = v.status === 'accepted';
+              const isRequested = v.status === 'requested';
 
               return (
                 <div
-                  key={visit.id}
-                  className={`bg-white rounded-3xl border p-5 sm:p-6 shadow-sm space-y-4 transition ${
-                    isAccepted ? 'border-emerald-300' : isDeclined ? 'border-rose-200 opacity-80' : 'border-earth-300'
+                  key={v.id}
+                  onClick={() => setSelectedVisit(v)}
+                  className={`bg-white p-5 rounded-3xl border transition cursor-pointer shadow-sm space-y-3 ${
+                    selectedVisit?.id === v.id
+                      ? 'border-forest-800 ring-2 ring-forest-800/10'
+                      : 'border-sage-200 hover:border-sage-300'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${
-                        isAccepted ? 'bg-emerald-100 text-emerald-800' :
-                        isDeclined ? 'bg-rose-100 text-rose-800' :
-                        'bg-amber-100 text-amber-800'
-                      }`}>
-                        {visit.status}
-                      </span>
-                      <h3
-                        onClick={() => onNavigateToListing(visit.listing_id)}
-                        className="font-extrabold text-slate-900 hover:text-primary-700 cursor-pointer text-base mt-2 line-clamp-1"
-                      >
-                        {visit.listing_title}
-                      </h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{visit.listing_panchayat}, {visit.listing_district}</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            v.status === 'accepted'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : v.status === 'requested'
+                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                              : 'bg-rose-100 text-rose-800 border border-rose-300'
+                          }`}
+                        >
+                          {v.status}
+                        </span>
+                        <span className="text-[11px] text-charcoal-400 font-medium">#{v.id}</span>
                       </div>
+                      <h3 className="font-display font-bold text-sm sm:text-base text-charcoal-800">
+                        {v.listing_title}
+                      </h3>
                     </div>
 
-                    <div className="text-right">
-                      <div className="text-xs font-bold text-slate-900">{visit.proposed_date}</div>
-                      <div className="text-[11px] text-slate-500 max-w-[160px] truncate">{visit.time_slot}</div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigateToListing(v.listing_id);
+                      }}
+                      className="text-xs font-bold text-forest-800 hover:underline flex items-center gap-1 flex-shrink-0"
+                    >
+                      <span>Listing</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {/* Date & Time Slot */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs p-3 rounded-2xl bg-ivory-100 border border-sage-200">
+                    <div className="flex items-center gap-2 text-charcoal-700">
+                      <Calendar className="w-3.5 h-3.5 text-forest-700 flex-shrink-0" />
+                      <span>Proposed Date: <strong>{v.proposed_date}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-2 text-charcoal-700">
+                      <Clock className="w-3.5 h-3.5 text-forest-700 flex-shrink-0" />
+                      <span className="truncate">{v.time_slot}</span>
                     </div>
                   </div>
 
-                  {/* Notes */}
-                  {visit.buyer_notes && (
-                    <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 text-xs text-slate-700">
-                      <span className="font-bold block mb-0.5">Buyer Notes:</span>
-                      <p>{visit.buyer_notes}</p>
-                    </div>
+                  {/* Buyer Notes */}
+                  {v.buyer_notes && (
+                    <p className="text-xs text-charcoal-600 bg-sage-50 p-2.5 rounded-xl border border-sage-200">
+                      <strong>Buyer Note:</strong> "{v.buyer_notes}"
+                    </p>
                   )}
 
-                  {/* Contact detail unlocked on acceptance */}
-                  {isAccepted && (
-                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                        <span>
-                          {isSeller ? `Buyer: ${visit.buyer_name} (${visit.buyer_phone})` : `Seller: ${visit.seller_name} (${visit.seller_phone})`}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {isSeller ? (
-                          <a href={`tel:${visit.buyer_phone}`} className="px-3 py-1 bg-emerald-700 text-white rounded-lg font-bold text-[11px]">
-                            Call Buyer
-                          </a>
-                        ) : (
-                          <a href={`tel:${visit.seller_phone}`} className="px-3 py-1 bg-emerald-700 text-white rounded-lg font-bold text-[11px]">
-                            Call Farmer
-                          </a>
-                        )}
-                        {visit.exact_latitude && visit.exact_longitude && (
-                          <button
-                            onClick={() => setSelectedVisitForMap(visit)}
-                            className="px-3 py-1 bg-primary-800 text-white rounded-lg font-bold text-[11px] flex items-center gap-1"
-                          >
-                            <Navigation className="w-3 h-3" />
-                            <span>Show GPS Pin</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Seller Action Buttons */}
-                  {isSeller && isPending && (
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-earth-100">
+                  {/* Actions for Farmer / Seller */}
+                  {isSeller && isRequested && (
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-sage-100">
                       <button
-                        onClick={() => handleUpdateStatus(visit.id, 'declined')}
-                        className="px-4 py-1.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-rose-50 border border-rose-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(v.id, 'declined');
+                        }}
+                        className="btn-sage text-xs py-1.5 px-3"
                       >
                         Decline
                       </button>
                       <button
-                        onClick={() => handleUpdateStatus(visit.id, 'accepted')}
-                        className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white shadow"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStatus(v.id, 'accepted');
+                        }}
+                        className="btn-forest text-xs py-1.5 px-4"
                       >
-                        Accept Visit & Unlock GPS
+                        Accept Appointment
                       </button>
                     </div>
                   )}
@@ -200,67 +202,61 @@ export const FarmVisitsPage: React.FC<FarmVisitsPageProps> = ({ onNavigateToList
           )}
         </div>
 
-        {/* Right Column: Directions & Map Preview (5 Cols) */}
-        <div className="lg:col-span-5 sticky top-28 bg-white p-5 rounded-3xl border border-earth-300 shadow-sm space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-earth-100">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-              <Navigation className="w-4 h-4 text-primary-700" />
-              <span>{lang === 'ta' ? 'உறுதி செய்யப்பட்ட பண்ணை வரைபடம்' : 'Confirmed Inspection Map'}</span>
-            </div>
-            {selectedVisitForMap && (
-              <span className="text-[11px] text-emerald-700 font-semibold truncate max-w-[150px]">
-                {selectedVisitForMap.listing_title}
-              </span>
-            )}
+        {/* Right Column: Confirmed Farm Location & Inspection Protocol (5 cols) */}
+        <div className="lg:col-span-5 bg-white p-6 rounded-3xl border border-sage-200 shadow-card space-y-5 lg:sticky lg:top-28">
+          <div className="flex items-center gap-2 pb-3 border-b border-sage-100">
+            <Navigation className="w-4 h-4 text-forest-800" />
+            <h3 className="font-display font-bold text-sm text-charcoal-800">
+              {lang === 'ta' ? 'உறுதி செய்யப்பட்ட பண்ணை முகவரி' : 'Inspection & Location Details'}
+            </h3>
           </div>
 
-          {selectedVisitForMap && selectedVisitForMap.exact_latitude && selectedVisitForMap.exact_longitude ? (
-            <div className="space-y-3">
-              <LeafletMap
-                center={[selectedVisitForMap.exact_latitude, selectedVisitForMap.exact_longitude]}
-                listings={[{
-                  id: selectedVisitForMap.listing_id,
-                  title: selectedVisitForMap.listing_title || 'Farm',
-                  livestock_type: 'cow',
-                  breed: 'Livestock',
-                  price: 0,
-                  is_negotiable: true,
-                  milk_yield_liters: 0,
-                  lactation_number: 0,
-                  pregnancy_status: '',
-                  weight_kg: 0,
-                  vaccination_status: '',
-                  photos: selectedVisitForMap.listing_photos || [],
-                  documents: [],
-                  state: 'Tamil Nadu',
-                  district: selectedVisitForMap.listing_district || '',
-                  panchayat: selectedVisitForMap.listing_panchayat || '',
-                  latitude: selectedVisitForMap.exact_latitude,
-                  longitude: selectedVisitForMap.exact_longitude,
-                  hide_exact_location: false,
-                  is_demo: false,
-                  status: 'available',
-                  quality_score: 100,
-                  flag_reasons: [],
-                  views_count: 0,
-                  created_at: '',
-                  updated_at: '',
-                  age_months: 36,
-                  gender: 'female',
-                  seller_id: selectedVisitForMap.seller_id
-                }]}
-                className="h-80 w-full"
-              />
-              <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-950 border border-emerald-200">
-                <strong>Unlocked Coordinates:</strong> {selectedVisitForMap.exact_latitude}, {selectedVisitForMap.exact_longitude}
+          {selectedVisit && selectedVisit.status === 'accepted' ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-forest-50 border border-forest-200 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-xs text-forest-900">
+                  <ShieldCheck className="w-4 h-4 text-forest-800" />
+                  <span>Farm Coordinates Unlocked</span>
+                </div>
+                <p className="text-xs text-forest-800 leading-relaxed">
+                  Seller has accepted this appointment. You may visit during the agreed morning or evening milking window.
+                </p>
+                <div className="pt-2 text-xs text-charcoal-700 font-semibold space-y-1">
+                  <div><strong>Farmer Name:</strong> {selectedVisit.seller_name || 'Selvam Periasamy'}</div>
+                  <div><strong>Farmer Contact:</strong> {selectedVisit.seller_phone || '9876500003'}</div>
+                  <div><strong>Village & Taluk:</strong> {selectedVisit.listing_panchayat}, {selectedVisit.listing_district}</div>
+                </div>
               </div>
+
+              <a
+                href={`tel:${selectedVisit.seller_phone || '9876500003'}`}
+                className="btn-forest w-full text-xs py-2.5"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Call Farmer for Farm Directions</span>
+              </a>
             </div>
           ) : (
-            <div className="py-20 text-center text-xs text-slate-400 space-y-2">
-              <MapPin className="w-8 h-8 mx-auto text-slate-300" />
-              <p>Accept an appointment or select an accepted visit to view unlocked farm coordinates.</p>
+            <div className="py-8 text-center text-xs text-charcoal-500 space-y-2">
+              <MapPin className="w-8 h-8 mx-auto text-sage-300" />
+              <p>
+                Precise village coordinates and direct seller contacts unlock automatically once the appointment is accepted by the farmer.
+              </p>
             </div>
           )}
+
+          {/* Due Diligence Checklist */}
+          <div className="p-4 rounded-2xl bg-ivory-100 border border-sage-200 space-y-2">
+            <h4 className="text-xs font-bold text-charcoal-800">
+              {lang === 'ta' ? 'நேரடி பரிசோதனை வழிகாட்டுதல்:' : 'On-Farm Inspection Checklist:'}
+            </h4>
+            <ul className="text-[11px] text-charcoal-600 space-y-1.5 list-disc list-inside">
+              <li>Observe both morning and evening milking outputs in person.</li>
+              <li>Check udder symmetry and test for mastitis swelling.</li>
+              <li>Verify government Animal Husbandry ear-tag and vaccination card.</li>
+              <li>Never send online advance deposits prior to physical inspection.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

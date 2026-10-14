@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { DemoBadge } from '../components/DemoBadge';
 import { SuspiciousAlertBox } from '../components/SuspiciousAlertBox';
-import { LeafletMap } from '../components/LeafletMap';
 import { FarmVisitModal } from '../components/FarmVisitModal';
 import { PriceEstimatorModal } from '../components/PriceEstimatorModal';
 import {
@@ -20,11 +19,12 @@ import {
   AlertTriangle,
   Heart,
   Share2,
-  FileText,
   Sparkles,
   Eye,
   CheckCircle2,
-  Lock
+  Lock,
+  Compass,
+  FileCheck
 } from 'lucide-react';
 
 interface ListingDetailPageProps {
@@ -102,8 +102,8 @@ export const ListingDetailPage: React.FC<ListingDetailPageProps> = ({
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-6">
-        <div className="h-8 w-40 bg-sand-200 rounded animate-pulse" />
-        <div className="h-96 bg-sand-200 rounded-3xl animate-pulse" />
+        <div className="h-8 w-40 bg-sage-200 rounded animate-pulse" />
+        <div className="h-96 bg-sage-200 rounded-3xl animate-pulse" />
       </div>
     );
   }
@@ -111,8 +111,8 @@ export const ListingDetailPage: React.FC<ListingDetailPageProps> = ({
   if (!listing) {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-slate-800">Listing Not Found</h2>
-        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-primary-700 text-white font-bold text-xs">
+        <h2 className="text-xl font-bold text-charcoal-800">Listing Not Found</h2>
+        <button onClick={onBack} className="btn-forest text-xs px-5 py-2.5">
           Go Back
         </button>
       </div>
@@ -121,304 +121,288 @@ export const ListingDetailPage: React.FC<ListingDetailPageProps> = ({
 
   const titleText = lang === 'ta' && listing.title_ta ? listing.title_ta : listing.title;
   const descText = lang === 'ta' && listing.description_ta ? listing.description_ta : listing.description;
-
-  const defaultPhoto = 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=800&q=80';
-  const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [defaultPhoto];
-
-  // WhatsApp click-to-chat message
-  const rawPhone = listing.seller?.phone || '9876500003';
-  const waMessage = encodeURIComponent(
-    `Hello ${listing.seller?.full_name || 'Farmer'}, I saw your Gram Mitra listing for "${titleText}" in ${listing.panchayat}. I am interested in inspecting the animal.`
-  );
-  const waUrl = `https://wa.me/91${rawPhone.replace(/\D/g, '')}?text=${waMessage}`;
+  const photos =
+    listing.photos && listing.photos.length > 0
+      ? listing.photos
+      : ['https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=800&q=80'];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-fade-in">
-      {/* Top Navigation */}
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Back Navigation Bar */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-earth-300 bg-white hover:bg-sand-50 text-xs font-bold text-slate-700 transition"
+          className="inline-flex items-center gap-2 text-xs font-bold text-forest-800 hover:text-forest-900 bg-white border border-sage-200 px-3.5 py-2 rounded-xl transition shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{lang === 'ta' ? 'பட்டியலுக்கு திரும்பு' : 'Back to Catalog'}</span>
+          <span>{lang === 'ta' ? 'பட்டியலுக்கு திரும்பு' : 'Back to Marketplace'}</span>
         </button>
 
         <div className="flex items-center gap-2">
+          {listing.is_demo && <DemoBadge showExplanation />}
           <button
             onClick={handleToggleFav}
-            className={`p-2 rounded-xl border border-earth-300 bg-white hover:bg-sand-50 transition shadow-sm ${isFavorited ? 'text-rose-600' : 'text-slate-600'}`}
+            className="p-2 rounded-xl border border-sage-200 bg-white text-charcoal-700 hover:text-terracotta-500 transition shadow-sm"
             title="Save to favorites"
           >
-            <Heart className={`w-4 h-4 ${isFavorited ? 'fill-rose-600' : ''}`} />
-          </button>
-          <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({ title: titleText, url: window.location.href }).catch(() => {});
-              }
-            }}
-            className="p-2 rounded-xl border border-earth-300 bg-white hover:bg-sand-50 text-slate-600 transition shadow-sm"
-            title="Share"
-          >
-            <Share2 className="w-4 h-4" />
+            <Heart
+              className={`w-4 h-4 ${isFavorited ? 'fill-terracotta-500 text-terracotta-500' : ''}`}
+            />
           </button>
         </div>
       </div>
 
-      {/* Main Listing Layout Grid */}
+      {/* Main Grid: Gallery + Livestock Details */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Media Gallery + Details (7 Cols) */}
+        {/* Left Column: Photos + Attributes (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* Main Photo Viewer */}
-          <div className="relative rounded-3xl overflow-hidden bg-slate-900 border border-earth-300 shadow-md h-80 sm:h-96">
+          {/* Main Photo Card */}
+          <div className="relative h-80 sm:h-[420px] rounded-3xl overflow-hidden bg-ivory-200 border border-sage-200 shadow-card">
             <img
-              src={photos[selectedPhotoIndex] || defaultPhoto}
+              src={photos[selectedPhotoIndex] || photos[0]}
               alt={titleText}
               className="w-full h-full object-cover"
             />
-            {listing.is_demo && (
-              <div className="absolute top-4 left-4">
-                <DemoBadge showExplanation />
-              </div>
-            )}
-            {listing.assisted_by_id && (
-              <div className="absolute top-4 right-4 bg-emerald-800/90 text-white backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" />
-                <span>{lang === 'ta' ? 'ஊராட்சி அங்கீகாரம்' : 'Panchayat Endorsed'}</span>
-              </div>
-            )}
+            <div className="absolute top-4 left-4 flex flex-col gap-1.5">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-forest-800 text-white shadow">
+                {listing.breed}
+              </span>
+            </div>
           </div>
 
-          {/* Photo Thumbnails */}
+          {/* Thumbnails */}
           {photos.length > 1 && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2.5 overflow-x-auto pb-1">
               {photos.map((p, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedPhotoIndex(idx)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition ${
-                    selectedPhotoIndex === idx ? 'border-primary-600 scale-105 shadow' : 'border-earth-200 opacity-70 hover:opacity-100'
+                  className={`w-20 h-16 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition ${
+                    selectedPhotoIndex === idx
+                      ? 'border-forest-800 ring-2 ring-forest-800/20'
+                      : 'border-sage-200 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={p} alt="" className="w-full h-full object-cover" />
+                  <img src={p} alt="Thumb" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           )}
 
-          {/* Explainable Suspicious Warnings & Quality Box */}
-          <SuspiciousAlertBox
-            flags={listing.flag_reasons}
-            qualityScore={listing.quality_score}
-          />
-
-          {/* Animal Specifications Cards */}
-          <div className="bg-white p-6 rounded-3xl border border-earth-200 shadow-sm space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-base">
-              {lang === 'ta' ? 'கால்நடை உற்பத்தி & மருத்துவ விபரங்கள்' : 'Livestock Production & Health Attributes'}
-            </h3>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="bg-sand-50 p-3 rounded-xl border border-sand-200">
-                <span className="text-slate-500 block text-[11px]">{t('age')}</span>
-                <span className="font-bold text-slate-900 text-sm">
-                  {Math.round(listing.age_months / 12 * 10) / 10} {t('years')}
-                </span>
-                <span className="text-[10px] text-slate-400 block">({listing.age_months} {t('months')})</span>
-              </div>
-
-              {listing.milk_yield_liters > 0 && (
-                <div className="bg-primary-50 p-3 rounded-xl border border-primary-200">
-                  <span className="text-primary-800 block text-[11px] font-semibold">{t('milkYield')}</span>
-                  <span className="font-black text-primary-900 text-sm">{listing.milk_yield_liters} L</span>
-                  <span className="text-[10px] text-primary-700 block">{t('litersPerDay')}</span>
-                </div>
-              )}
-
-              {listing.lactation_number > 0 && (
-                <div className="bg-sand-50 p-3 rounded-xl border border-sand-200">
-                  <span className="text-slate-500 block text-[11px]">{t('lactation')}</span>
-                  <span className="font-bold text-slate-900 text-sm">
-                    {listing.lactation_number}{t('calving')}
-                  </span>
-                </div>
-              )}
-
-              {listing.weight_kg > 0 && (
-                <div className="bg-sand-50 p-3 rounded-xl border border-sand-200">
-                  <span className="text-slate-500 block text-[11px]">{t('weight')}</span>
-                  <span className="font-bold text-slate-900 text-sm">{listing.weight_kg} kg</span>
-                </div>
-              )}
-
-              <div className="bg-sand-50 p-3 rounded-xl border border-sand-200">
-                <span className="text-slate-500 block text-[11px]">{t('pregnancy')}</span>
-                <span className="font-bold text-slate-900 text-sm capitalize">
-                  {listing.pregnancy_status === 'pregnant' ? t('pregnant') : listing.pregnancy_status}
-                </span>
-              </div>
-
-              <div className="bg-sand-50 p-3 rounded-xl border border-sand-200">
-                <span className="text-slate-500 block text-[11px]">{t('vaccination')}</span>
-                <span className="font-bold text-slate-900 text-sm capitalize">
-                  {listing.vaccination_status === 'fully_vaccinated' ? t('fullyVaccinated') : listing.vaccination_status}
-                </span>
-              </div>
-            </div>
-
-            {/* Vaccination Details & Health Notes */}
-            {listing.vaccination_details && (
-              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950">
-                <span className="font-bold block mb-0.5">💉 {t('vaccination')}:</span>
-                <p>{listing.vaccination_details}</p>
-              </div>
-            )}
+          {/* Description & Health Notes */}
+          <div className="bg-white p-6 rounded-3xl border border-sage-200 shadow-sm space-y-4">
+            <h2 className="font-display font-bold text-lg text-charcoal-800">
+              {lang === 'ta' ? 'கால்நடை விபரம்' : 'Livestock Description'}
+            </h2>
+            <p className="text-sm text-charcoal-600 leading-relaxed whitespace-pre-line">
+              {descText || 'No extended description provided.'}
+            </p>
 
             {listing.health_notes && (
-              <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 text-xs text-slate-800">
-                <span className="font-bold block mb-0.5">{t('healthNotes')}:</span>
-                <p className="leading-relaxed">{listing.health_notes}</p>
+              <div className="p-3.5 rounded-2xl bg-sage-50 border border-sage-200 text-xs space-y-1">
+                <span className="font-bold text-forest-800 block">
+                  {lang === 'ta' ? 'மருத்துவ மற்றும் உணவு பழக்க விபரம்:' : 'Veterinary & Feeding Notes:'}
+                </span>
+                <span className="text-charcoal-600">{listing.health_notes}</span>
               </div>
             )}
           </div>
 
-          {/* Description Section */}
-          <div className="bg-white p-6 rounded-3xl border border-earth-200 shadow-sm space-y-3">
-            <h3 className="font-extrabold text-slate-900 text-base">
-              {lang === 'ta' ? 'விவசாயியின் விபரம்' : 'Livestock Description'}
+          {/* Quality & Suspicious Listing Advisory Box */}
+          <div className="bg-white p-6 rounded-3xl border border-sage-200 shadow-sm space-y-3">
+            <h3 className="font-display font-bold text-sm text-charcoal-800">
+              {lang === 'ta' ? 'பாதுகாப்பு & நம்பகத்தன்மை பகுப்பாய்வு' : 'AI Safety & Quality Analyzer'}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-              {descText || 'No additional notes provided.'}
-            </p>
+            <SuspiciousAlertBox
+              flags={listing.flag_reasons || []}
+              qualityScore={listing.quality_score || 90}
+            />
           </div>
 
-          {/* Leaflet Location Map */}
-          <div className="bg-white p-6 rounded-3xl border border-earth-200 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
-                <MapPin className="w-4 h-4 text-primary-700" />
-                <span>{listing.panchayat}, {listing.district}</span>
+          {/* Attributable Fair-Price Estimator Banner */}
+          <div className="p-5 rounded-3xl bg-forest-50 border border-forest-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-forest-800" />
+                <span className="font-display font-bold text-sm text-forest-900">
+                  {lang === 'ta' ? 'அரசு அங்கீகரித்த நியாய விலை' : 'TANUVAS / NDDB Benchmark Analysis'}
+                </span>
               </div>
-              <span className="text-xs text-slate-500">
-                {listing.village ? `${listing.village}, ` : ''}{listing.taluk ? `${listing.taluk} Taluk` : ''}
-              </span>
+              <p className="text-xs text-forest-700">
+                {lang === 'ta'
+                  ? 'இந்த இன மாட்டிற்கான நியாய விலை வரம்பைக் கணக்கிட்டு ஒப்பிடலாம்.'
+                  : 'Compare asking price against official research benchmarks and yield factors.'}
+              </p>
             </div>
-
-            <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 text-[11px] text-slate-600 flex items-start gap-2">
-              <Lock className="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5" />
-              <span>{t('privacyNotice')}</span>
-            </div>
-
-            <LeafletMap
-              center={[listing.latitude, listing.longitude]}
-              listings={[listing]}
-              selectedListingId={listing.id}
-              className="h-64 w-full"
-            />
+            <button
+              onClick={() => setEstimatorModalOpen(true)}
+              className="btn-forest text-xs px-4 py-2 flex-shrink-0"
+            >
+              {lang === 'ta' ? 'விலை சரிபார்க்க' : 'Check Fair Price'}
+            </button>
           </div>
         </div>
 
-        {/* Right Column: Price Card & Farmer Direct Contact (5 Cols) */}
+        {/* Right Column: Pricing & Purchase Call to Actions (5 cols) */}
         <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
-          {/* Price & Action Card */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-earth-300 shadow-lg space-y-6">
+          {/* Main Action Card */}
+          <div className="bg-white p-6 sm:p-7 rounded-3xl border border-sage-200 shadow-card space-y-6">
             <div>
-              <span className="text-xs font-semibold text-slate-500 block uppercase tracking-wider">
-                {lang === 'ta' ? 'விற்பனையாளர் கேட்கும் விலை' : 'Asking Price'}
+              <span className="text-xs font-bold text-charcoal-400 uppercase tracking-wider block mb-1">
+                {listing.is_negotiable ? t('negotiable') : t('fixedPrice')}
               </span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                  ₹{listing.price.toLocaleString('en-IN')}
-                </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  {listing.is_negotiable ? t('negotiable') : t('fixedPrice')}
-                </span>
+              <div className="font-display text-3xl sm:text-4xl font-black text-forest-800">
+                ₹{listing.price.toLocaleString('en-IN')}
               </div>
             </div>
 
-            {/* Benchmark Compare Button */}
-            <button
-              onClick={() => setEstimatorModalOpen(true)}
-              className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
-            >
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>{lang === 'ta' ? 'அரசு வழிகாட்டுதல் விலையுடன் ஒப்பிடுக' : 'Compare with Attributable Benchmark'}</span>
-            </button>
+            {/* Quick Metrics Grid */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3 rounded-2xl bg-ivory-100 border border-sage-200">
+                <div className="text-charcoal-400 text-[11px] mb-0.5">{t('milkYield')}</div>
+                <div className="font-display font-black text-base text-charcoal-800">
+                  {listing.milk_yield_liters > 0 ? `${listing.milk_yield_liters} L` : 'N/A'}
+                </div>
+              </div>
 
-            {/* Direct Contact Buttons */}
-            <div className="space-y-2.5 pt-2 border-t border-earth-100">
-              {/* WhatsApp direct click-to-chat */}
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>{t('btnWhatsApp')}</span>
-              </a>
+              <div className="p-3 rounded-2xl bg-ivory-100 border border-sage-200">
+                <div className="text-charcoal-400 text-[11px] mb-0.5">{t('age')}</div>
+                <div className="font-display font-black text-base text-charcoal-800">
+                  {Math.round((listing.age_months / 12) * 10) / 10} {t('years')}
+                </div>
+              </div>
 
-              {/* Direct phone call */}
-              <a
-                href={`tel:${rawPhone}`}
-                className="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow"
-              >
-                <Phone className="w-4 h-4 text-emerald-400" />
-                <span>
-                  {t('btnCallSeller')} ({listing.masked_phone || rawPhone})
-                </span>
-              </a>
+              <div className="p-3 rounded-2xl bg-ivory-100 border border-sage-200">
+                <div className="text-charcoal-400 text-[11px] mb-0.5">{t('vaccination')}</div>
+                <div className="font-bold text-forest-800 capitalize">
+                  {listing.vaccination_status.replace('_', ' ')}
+                </div>
+              </div>
 
-              {/* Schedule on-farm visit */}
+              <div className="p-3 rounded-2xl bg-ivory-100 border border-sage-200">
+                <div className="text-charcoal-400 text-[11px] mb-0.5">{t('pregnancy')}</div>
+                <div className="font-bold text-charcoal-800 capitalize">
+                  {listing.pregnancy_status === 'pregnant' ? t('pregnant') : 'Ready'}
+                </div>
+              </div>
+            </div>
+
+            {/* Seller Contact & Verification */}
+            <div className="p-4 rounded-2xl bg-sage-50 border border-sage-200 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-forest-800 text-white font-bold flex items-center justify-center">
+                  {listing.seller ? listing.seller.full_name.charAt(0) : 'F'}
+                </div>
+                <div>
+                  <div className="font-bold text-sm text-charcoal-800">
+                    {listing.seller ? listing.seller.full_name : 'Farmer'}
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] text-forest-700 font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Verified Panchayat Seller</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-xs text-charcoal-600 pt-2 border-t border-sage-200 space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-forest-700" />
+                  <span>
+                    {listing.village ? `${listing.village}, ` : ''}{listing.panchayat}, {listing.district}
+                  </span>
+                </div>
+                {listing.distance_km !== undefined && (
+                  <div className="text-[11px] text-forest-800 font-bold pl-5">
+                    Approx. {listing.distance_km} km away from your location
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Direct Interaction Buttons */}
+            <div className="space-y-2.5">
               <button
-                onClick={() => {
-                  if (!user) {
-                    onNavigateToLogin();
-                    return;
-                  }
-                  setVisitModalOpen(true);
-                }}
-                className="w-full py-3 rounded-2xl bg-primary-700 hover:bg-primary-800 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md"
+                onClick={() => setVisitModalOpen(true)}
+                className="btn-forest w-full py-3 text-xs sm:text-sm font-bold shadow-md"
               >
                 <Calendar className="w-4 h-4" />
                 <span>{t('btnScheduleVisit')}</span>
               </button>
-            </div>
 
-            {/* Seller profile box */}
-            <div className="pt-4 border-t border-earth-100 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-primary-100 text-primary-800 font-bold text-base flex items-center justify-center">
-                {listing.seller ? listing.seller.full_name.charAt(0) : 'F'}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-slate-900 text-sm">
-                    {listing.seller ? listing.seller.full_name : 'Local Farmer'}
-                  </span>
-                  {listing.seller?.is_verified && (
-                    <span title="Verified Seller"><CheckCircle2 className="w-4 h-4 text-emerald-600" /></span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-500">
-                  {listing.seller?.village ? `${listing.seller.village}, ` : ''}{listing.panchayat}
-                </p>
-              </div>
-            </div>
+              <div className="grid grid-cols-2 gap-2">
+                <a
+                  href={`tel:${listing.seller?.phone || '9876500003'}`}
+                  className="btn-sage py-2.5 text-xs font-bold"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>{t('btnCallSeller')}</span>
+                </a>
 
-            {/* Flag Suspicious Listing */}
-            <div className="pt-3 border-t border-earth-100 text-center">
+                <a
+                  href={`https://wa.me/91${listing.seller?.phone || '9876500003'}?text=${encodeURIComponent(
+                    `Hello, I am inquiring about your listing #${listing.id} (${listing.title}) on Gram Mitra.`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
+
               <button
                 onClick={() => setFlagModalOpen(true)}
-                className="text-[11px] font-semibold text-slate-400 hover:text-rose-600 transition flex items-center justify-center gap-1 mx-auto"
+                className="w-full text-center py-1.5 text-[11px] font-semibold text-charcoal-400 hover:text-rose-600 transition"
               >
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>{lang === 'ta' ? 'சந்தேகத்திற்கிடமான பதிவா? புகார் அளிக்கவும்' : 'Report Suspicious / Fake Listing'}</span>
+                {lang === 'ta' ? 'சந்தேகத்திற்கிடமான பதிவை தெரிவிக்க' : 'Report / Flag this Listing'}
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Flag / Report Modal */}
+      {flagModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full border border-sage-300 shadow-2xl space-y-4">
+            <h3 className="font-display font-bold text-base text-charcoal-800">
+              {lang === 'ta' ? 'பதிவு புகார் அளிக்கவும்' : 'Report Suspicious Listing'}
+            </h3>
+            {flagSubmitted ? (
+              <div className="p-4 rounded-xl bg-forest-50 text-forest-800 text-xs font-semibold text-center">
+                Report submitted for Panchayat Representative review.
+              </div>
+            ) : (
+              <form onSubmit={handleFlagSubmit} className="space-y-3">
+                <p className="text-xs text-charcoal-500">
+                  Help protect rural buyers against advance-token fraud, undisclosed animal illness, or fake pricing.
+                </p>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Describe your concern..."
+                  value={flagReason}
+                  onChange={(e) => setFlagReason(e.target.value)}
+                  className="w-full text-xs"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFlagModalOpen(false)}
+                    className="btn-sage text-xs py-2 px-4"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-terracotta text-xs py-2 px-4">
+                    Submit Report
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Farm Visit Modal */}
       <FarmVisitModal
@@ -429,61 +413,13 @@ export const ListingDetailPage: React.FC<ListingDetailPageProps> = ({
         sellerName={listing.seller?.full_name}
       />
 
-      {/* Benchmark Estimator Modal */}
+      {/* Price Estimator Modal */}
       <PriceEstimatorModal
         isOpen={estimatorModalOpen}
         onClose={() => setEstimatorModalOpen(false)}
         initialLivestockType={listing.livestock_type}
         initialBreed={listing.breed}
       />
-
-      {/* Report Listing Modal */}
-      {flagModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white text-[#19251E] rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#D7E2D8] relative">
-            <h3 className="text-base font-bold text-[#19251E] mb-1">
-              {lang === 'ta' ? 'பதிவு மீது புகார் அளிக்கவும்' : 'Report Listing to Moderation'}
-            </h3>
-            <p className="text-xs text-[#58665D] mb-4">
-              {lang === 'ta'
-                ? 'முன்பண மோசடி, போலியான விலைகள் அல்லது தவறான விபரங்கள் இருந்தால் ஊராட்சி நிர்வாகத்திற்கு தெரிவியுங்கள்.'
-                : 'Help keep Gram Mitra safe. Report scam prices, fake pictures, or unresponsive sellers.'}
-            </p>
-
-            {flagSubmitted ? (
-              <div className="py-4 text-center text-xs font-bold text-emerald-700">
-                Report submitted for Panchayat Representative review.
-              </div>
-            ) : (
-              <form onSubmit={handleFlagSubmit} className="space-y-3">
-                <textarea
-                  rows={3}
-                  required
-                  placeholder={lang === 'ta' ? 'புகாருக்கான காரணம்...' : 'Reason for report...'}
-                  value={flagReason}
-                  onChange={(e) => setFlagReason(e.target.value)}
-                  className="input-light w-full text-xs"
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setFlagModalOpen(false)}
-                    className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow"
-                  >
-                    Submit Report
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

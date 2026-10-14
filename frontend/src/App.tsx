@@ -47,7 +47,7 @@ const MainApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-slate-100 font-sans" style={{ background: '#040d0a' }}>
+    <div className="min-h-screen flex flex-col font-sans bg-ivory-100 text-charcoal-800">
       <Navbar
         currentPage={currentPage}
         onNavigate={handleNavigate}

@@ -1,105 +1,82 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { ShieldCheck, PhoneCall, Leaf } from 'lucide-react';
+import { ShieldCheck, PhoneCall, Leaf, Heart } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const Footer: React.FC = () => {
   const { lang, t } = useLanguage();
 
   return (
-    <footer className="relative border-t border-emerald-900/30 mt-24 overflow-hidden"
-      style={{ background: '#040d0a' }}
-    >
-      {/* Background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-5"
-        style={{ background: 'radial-gradient(circle, #10b981, transparent)', filter: 'blur(80px)' }} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10 relative z-10">
+    <footer className="border-t border-sage-200 bg-white mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           
           {/* Brand & Mission */}
-          <div className="md:col-span-2 space-y-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-800 flex items-center justify-center text-xl shadow-glow-sm">
-                🌿
-              </div>
-              <div>
-                <span className="font-display text-xl font-black text-white">Gram Mitra</span>
-                <span className="text-sm text-emerald-400/60 ml-2">— கிராம மித்ரா</span>
-              </div>
-            </div>
-            <p className="text-sm text-slate-400 max-w-md leading-relaxed">
-              {t('subTagline')}
+          <div className="md:col-span-2 space-y-4">
+            <Logo size="md" />
+            <p className="text-sm text-charcoal-500 max-w-md leading-relaxed">
+              Gram Mitra (கிராம மித்ரா) connects cattle, buffalo, goat, sheep, and poultry farmers directly with verified buyers across rural panchayat communities, eliminating middlemen through attributable pricing and transparent discovery.
             </p>
             
-            {/* Safety Advisory */}
-            <div className="flex items-start gap-3 text-xs p-4 rounded-2xl"
-              style={{
-                background: 'rgba(16, 185, 129, 0.06)',
-                border: '1px solid rgba(16, 185, 129, 0.2)'
-              }}
-            >
-              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-emerald-400 mt-0.5" />
-              <span className="text-emerald-300/80 leading-relaxed">
+            {/* Safety Advisory Banner */}
+            <div className="flex items-start gap-3 text-xs p-4 rounded-2xl bg-sage-50 border border-sage-200 text-forest-900 max-w-md">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-forest-700 mt-0.5" />
+              <span className="leading-relaxed">
                 {lang === 'ta'
-                  ? 'பாதுகாப்பு அறிவுறுத்தல்: நேரில் சென்று கால்நடையைப் பார்க்காமல் முன்பணம் எதுவும் செலுத்தாதீர்கள்.'
-                  : 'Farmer Safety Advisory: Never send advance money prior to inspecting the animal during a physical farm visit.'}
+                  ? 'விவசாயி பாதுகாப்பு: நேரில் பண்ணைக்கு சென்று கால்நடையை பார்த்து பால் கறவை சரிபார்க்காமல் முன்பணம் எதுவும் செலுத்தாதீர்கள்.'
+                  : 'Farmer Safety Advisory: Always inspect livestock during scheduled farm milking tests prior to sending any payment or token.'}
               </span>
             </div>
           </div>
 
           {/* Research & Benchmark References */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-400/70 mb-4">
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal-800">
               {lang === 'ta' ? 'அரசு & ஆராய்ச்சி ஆதாரங்கள்' : 'Advisory Standards'}
             </h4>
-            <ul className="space-y-2.5 text-xs text-slate-500">
+            <ul className="space-y-2 text-xs text-charcoal-500">
               {[
-                'TANUVAS Cattle Benchmarks',
+                'TANUVAS Indigenous Survey (Kongu Cattle)',
                 'National Dairy Development Board (NDDB)',
-                'ICAR Indigenous Livestock Registry',
-                'Tamil Nadu Animal Husbandry Dept (1962)',
-              ].map(item => (
-                <li key={item} className="hover:text-emerald-400 transition cursor-pointer flex items-center gap-2">
-                  <div className="w-1 h-1 rounded-full bg-emerald-600" />
-                  {item}
+                'ICAR Indigenous Breed Registries',
+                'Tamil Nadu Animal Husbandry Guidelines'
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-forest-700" />
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Emergency Helpline */}
-          <div>
-            <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-400/70 mb-4">
-              {lang === 'ta' ? 'உதவி & ஆதரவு' : 'Support & Helpline'}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal-800">
+              {lang === 'ta' ? 'அரசு உதவி எண்' : 'Emergency Helpline'}
             </h4>
-            <div className="space-y-4 text-xs">
-              <div className="flex items-center gap-2.5 p-3 rounded-xl"
-                style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
-              >
-                <PhoneCall className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-forest-50 border border-forest-200 text-forest-900">
+                <PhoneCall className="w-4 h-4 text-forest-800 flex-shrink-0" />
                 <div>
-                  <div className="text-white font-bold">1962</div>
-                  <div className="text-emerald-500/70">Toll-Free Veterinary Emergency</div>
+                  <div className="font-extrabold text-sm text-forest-900">1962</div>
+                  <div className="text-[11px] text-forest-700">Toll-Free Veterinary Emergency</div>
                 </div>
               </div>
-              <p className="text-slate-500 leading-relaxed">
-                Gram Panchayat Animal Welfare Center<br />
-                Mon–Sat 08:00 AM – 06:00 PM
+              <p className="text-charcoal-400 text-[11px] leading-relaxed">
+                Gram Sabha Livestock Welfare Cell<br />
+                Panchayat Service Hours: Mon–Sat 08:00 AM – 06:00 PM
               </p>
             </div>
           </div>
         </div>
 
-        <div className="divider-gradient mb-8" />
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
-          <div className="flex items-center gap-2">
-            <Leaf className="w-3.5 h-3.5 text-emerald-700" />
-            <span>&copy; {new Date().getFullYear()} Gram Mitra. {t('footerRights')}</span>
+        {/* Bottom copyright line */}
+        <div className="pt-8 border-t border-sage-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-charcoal-400">
+          <div className="flex items-center gap-1.5">
+            <span>&copy; {new Date().getFullYear()} Gram Mitra. All rights reserved.</span>
           </div>
-          <div className="text-[11px] text-center sm:text-right opacity-60">
-            {t('footerDisclaimer')}
+          <div className="text-[11px] text-center sm:text-right text-charcoal-400">
+            Attributable agricultural fair benchmarks • Safe demonstration mode active
           </div>
         </div>
       </div>

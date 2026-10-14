@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { Lock, Phone, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 interface LoginPageProps {
   onSuccess: () => void;
@@ -48,41 +49,33 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16 relative">
-      {/* Background orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="orb orb-1 opacity-10" />
-        <div className="orb orb-2 opacity-10" />
-      </div>
-      <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
-
-      <div className="w-full max-w-md relative z-10 animate-scale-in">
-        <div className="glass-card rounded-3xl p-8 space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-3xl p-8 border border-sage-200 shadow-card space-y-6">
           
-          {/* Header */}
+          {/* Logo & Header */}
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-800 flex items-center justify-center text-3xl mx-auto shadow-glow">
-              🌿
+            <div className="flex justify-center">
+              <Logo size="lg" showText={false} />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-black text-white">{t('navLogin')}</h1>
-              <p className="text-xs text-slate-500 mt-1">
-                {lang === 'ta' ? 'கிராம மித்ரா கணக்கில் உள்நுழையவும்' : 'Access your Gram Mitra account'}
+              <h1 className="font-display text-2xl font-black text-charcoal-800">{t('navLogin')}</h1>
+              <p className="text-xs text-charcoal-500 mt-1">
+                {lang === 'ta' ? 'கிராம மித்ரா கணக்கில் உள்நுழையவும்' : 'Access your Gram Mitra farmer or buyer account'}
               </p>
             </div>
           </div>
 
           {error && (
-            <div className="p-3.5 rounded-xl text-xs font-semibold"
-              style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5' }}
-            >
+            <div className="p-3.5 rounded-xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800">
               {error}
             </div>
           )}
 
+          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-emerald-400/80 block mb-2">
+              <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
                 Mobile Number or Email
               </label>
               <div className="relative">
@@ -92,14 +85,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   placeholder="10-digit mobile number or email"
                   value={phoneOrEmail}
                   onChange={(e) => setPhoneOrEmail(e.target.value)}
-                  className="input-dark pl-10"
+                  className="w-full pl-9 pr-3 py-2.5 text-xs"
                 />
-                <Phone className="w-4 h-4 text-emerald-600 absolute left-3 top-3.5" />
+                <Phone className="w-4 h-4 text-forest-700 absolute left-3 top-3" />
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-emerald-400/80 block mb-2">Password</label>
+              <label className="text-xs font-bold text-charcoal-800 block mb-1.5">Password</label>
               <div className="relative">
                 <input
                   type="password"
@@ -107,55 +100,83 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-dark pl-10"
+                  className="w-full pl-9 pr-3 py-2.5 text-xs"
                 />
-                <Lock className="w-4 h-4 text-emerald-600 absolute left-3 top-3.5" />
+                <Lock className="w-4 h-4 text-forest-700 absolute left-3 top-3" />
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-3 disabled:opacity-50"
+              className="btn-forest w-full py-3 text-xs font-bold shadow-md disabled:opacity-50"
             >
               <span>{loading ? 'Logging in...' : t('navLogin')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
 
-          {/* Demo Accounts */}
-          <div className="pt-4 space-y-3" style={{ borderTop: '1px solid rgba(16, 185, 129, 0.15)' }}>
-            <div className="flex items-center gap-2">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-[11px] uppercase font-bold text-amber-400/70 tracking-wider">
-                1-Click Demo Accounts
+          {/* 1-Click Demo Accounts Section */}
+          <div className="pt-4 border-t border-sage-100 space-y-3">
+            <div className="flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
+              <span className="text-[11px] uppercase font-extrabold text-amber-900 tracking-wider">
+                1-Click Demo Accounts (For Presentations)
               </span>
             </div>
+
             <div className="grid grid-cols-2 gap-2">
               {[
-                { role: 'seller', label: '🌾 Selvam', tag: 'Farmer', color: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.3)', text: '#6ee7b7' },
-                { role: 'panchayat_rep', label: '🏛️ Murugesan', tag: 'Panchayat', color: 'rgba(59, 130, 246, 0.12)', border: 'rgba(59, 130, 246, 0.3)', text: '#93c5fd' },
-                { role: 'admin', label: '🛡️ Dr. Sundaram', tag: 'Admin', color: 'rgba(168, 85, 247, 0.12)', border: 'rgba(168, 85, 247, 0.3)', text: '#c4b5fd' },
-                { role: 'buyer', label: '🛒 Kavitha', tag: 'Buyer', color: 'rgba(251, 191, 36, 0.1)', border: 'rgba(251, 191, 36, 0.25)', text: '#fbbf24' },
-              ].map(({ role, label, tag, color, border, text }) => (
+                {
+                  role: 'seller',
+                  label: '🌾 Selvam',
+                  tag: 'Farmer / Seller',
+                  cred: 'Farmer@123',
+                  bg: 'bg-forest-50 hover:bg-forest-100 border-forest-200 text-forest-900'
+                },
+                {
+                  role: 'buyer',
+                  label: '🛒 Kavitha',
+                  tag: 'Prospective Buyer',
+                  cred: 'Buyer@123',
+                  bg: 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-900'
+                },
+                {
+                  role: 'panchayat_rep',
+                  label: '🏛️ Murugesan',
+                  tag: 'Panchayat Rep',
+                  cred: 'Panchayat@123',
+                  bg: 'bg-sage-100 hover:bg-sage-200 border-sage-300 text-forest-800'
+                },
+                {
+                  role: 'admin',
+                  label: '🛡️ Dr. Sundaram',
+                  tag: 'Platform Admin',
+                  cred: 'Admin@123',
+                  bg: 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-900'
+                }
+              ].map(({ role, label, tag, cred, bg }) => (
                 <button
                   key={role}
                   type="button"
                   onClick={() => handleDemoPick(role as any)}
-                  className="p-2.5 rounded-xl text-left text-xs font-bold transition-all duration-200 hover:scale-[1.02]"
-                  style={{ background: color, border: `1px solid ${border}` }}
+                  className={`p-2.5 rounded-2xl text-left border transition ${bg}`}
                 >
-                  <span className="block text-[10px] uppercase mb-0.5" style={{ color: text, opacity: 0.7 }}>{tag}</span>
-                  <span style={{ color: text }}>{label}</span>
+                  <span className="block text-[9px] font-bold uppercase tracking-wider opacity-75">
+                    {tag}
+                  </span>
+                  <span className="font-extrabold text-xs block">{label}</span>
+                  <span className="text-[9px] font-medium opacity-60">PW: {cred}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="text-center pt-1">
+          {/* Footer Register Link */}
+          <div className="text-center pt-2">
             <button
               onClick={onNavigateToRegister}
-              className="text-xs text-emerald-400 font-bold hover:text-emerald-300 transition"
+              className="text-xs text-forest-800 font-bold hover:underline"
             >
               {lang === 'ta' ? 'புதிய கணக்கு உருவாக்க? பதிவு செய்க' : "Don't have an account? Register here"}
             </button>

@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { User, Lock, Phone, ArrowRight, ShieldCheck, MapPin } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 interface RegisterPageProps {
   onSuccess: () => void;
@@ -59,12 +60,17 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-8 animate-fade-in">
-      <div className="bg-white text-[#19251E] p-8 rounded-3xl border border-[#D7E2D8] shadow-xl space-y-6">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-black text-[#19251E]">{t('navRegister')}</h1>
-          <p className="text-xs text-[#58665D]">
-            {lang === 'ta' ? 'விவசாயி அல்லது வாங்குபவராக கிராம மித்ராவில் இணையுங்கள்' : 'Join Gram Mitra Livestock Marketplace'}
+    <div className="max-w-md mx-auto px-4 py-12">
+      <div className="bg-white p-8 rounded-3xl border border-sage-200 shadow-card space-y-6">
+        <div className="text-center space-y-2">
+          <div className="flex justify-center">
+            <Logo size="md" showText={false} />
+          </div>
+          <h1 className="font-display text-2xl font-black text-charcoal-800">{t('navRegister')}</h1>
+          <p className="text-xs text-charcoal-500">
+            {lang === 'ta'
+              ? 'விவசாயி அல்லது வாங்குபவராக கிராம மித்ராவில் இணையுங்கள்'
+              : 'Join Gram Mitra Rural Livestock Marketplace'}
           </p>
         </div>
 
@@ -76,21 +82,23 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-[#19251E] block mb-1">Role / பாத்திரம் *</label>
+            <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+              Role / பாத்திரம் *
+            </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'seller', label: 'Farmer / Seller' },
+                { id: 'seller', label: 'Farmer' },
                 { id: 'buyer', label: 'Buyer' },
-                { id: 'panchayat_rep', label: 'Panchayat Rep' }
-              ].map(r => (
+                { id: 'panchayat_rep', label: 'Panchayat' }
+              ].map((r) => (
                 <button
                   key={r.id}
                   type="button"
                   onClick={() => setRole(r.id as any)}
                   className={`py-2 px-1 rounded-xl text-xs font-bold border transition text-center ${
                     role === r.id
-                      ? 'bg-emerald-700 text-white border-emerald-700 shadow'
-                      : 'bg-[#FAF8F2] text-[#19251E] border-[#D7E2D8] hover:bg-[#EAF5EC]'
+                      ? 'bg-forest-800 text-white border-forest-900 shadow-sm'
+                      : 'bg-ivory-100 text-charcoal-700 border-sage-200 hover:bg-sage-100'
                   }`}
                 >
                   {r.label}
@@ -100,86 +108,114 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
           </div>
 
           <div>
-            <label className="text-xs font-bold text-[#19251E] block mb-1">Full Name *</label>
+            <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+              Full Name / முழுப் பெயர் *
+            </label>
             <input
               type="text"
               required
               placeholder="e.g. Selvam Periasamy"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="input-light w-full text-xs font-medium"
+              className="w-full text-xs"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-[#19251E] block mb-1">Mobile Number (10 digits) *</label>
+            <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+              Mobile Number / அலைபேசி எண் *
+            </label>
             <input
-              type="tel"
+              type="text"
               required
-              pattern="[0-9]{10}"
-              placeholder="e.g. 9876543210"
+              placeholder="10-digit mobile number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="input-light w-full text-xs font-medium"
+              className="w-full text-xs"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-bold text-[#19251E] block mb-1">{t('selectDistrict')}</label>
+              <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+                {t('selectDistrict')} *
+              </label>
               <select
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="select-light w-full text-xs"
+                className="w-full text-xs"
               >
-                {districts.map(d => <option key={d} value={d}>{d}</option>)}
+                {districts.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
               </select>
             </div>
+
             <div>
-              <label className="text-xs font-bold text-[#19251E] block mb-1">{t('selectPanchayat')} *</label>
+              <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+                Panchayat / ஊராட்சி
+              </label>
               <input
                 type="text"
-                required
-                placeholder="Panchayat Name"
+                placeholder="e.g. Pappini"
                 value={panchayat}
                 onChange={(e) => setPanchayat(e.target.value)}
-                className="input-light w-full text-xs"
+                className="w-full text-xs"
               />
             </div>
           </div>
 
+          <div>
+            <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+              Village / கிராமம்
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Pappini Pudur"
+              value={village}
+              onChange={(e) => setVillage(e.target.value)}
+              className="w-full text-xs"
+            />
+          </div>
+
           {role === 'panchayat_rep' && (
             <div>
-              <label className="text-xs font-bold text-[#19251E] block mb-1">Panchayat ID / Ward Number *</label>
+              <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+                Panchayat Representative ID / சான்றிதழ் எண் *
+              </label>
               <input
                 type="text"
                 required
-                placeholder="Official representative reference"
+                placeholder="e.g. TN-TPR-KGM-REP-042"
                 value={panchayatId}
                 onChange={(e) => setPanchayatId(e.target.value)}
-                className="input-light w-full text-xs"
+                className="w-full text-xs"
               />
             </div>
           )}
 
           <div>
-            <label className="text-xs font-bold text-[#19251E] block mb-1">Password *</label>
+            <label className="text-xs font-bold text-charcoal-800 block mb-1.5">
+              Password / கடவுச்சொல் *
+            </label>
             <input
               type="password"
               required
-              placeholder="••••••••"
+              placeholder="Minimum 6 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-light w-full text-xs font-medium"
+              className="w-full text-xs"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-2xl btn-primary text-white font-bold text-xs sm:text-sm transition shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="btn-forest w-full py-3 text-xs font-bold shadow-md disabled:opacity-50"
           >
-            <span>{loading ? 'Creating account...' : t('navRegister')}</span>
+            <span>{loading ? 'Creating Account...' : t('navRegister')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -187,9 +223,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({
         <div className="text-center pt-2">
           <button
             onClick={onNavigateToLogin}
-            className="text-xs text-primary-700 font-bold hover:underline"
+            className="text-xs text-forest-800 font-bold hover:underline"
           >
-            {lang === 'ta' ? 'ஏற்கனவே கணக்கு உள்ளதா? உள்நுழையவும்' : 'Already have an account? Sign in'}
+            {lang === 'ta' ? 'ஏற்கனவே கணக்கு உள்ளதா? உள்நுழையவும்' : 'Already have an account? Login here'}
           </button>
         </div>
       </div>
